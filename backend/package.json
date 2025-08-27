@@ -1,35 +1,177 @@
 {
   "name": "code-quality-dashboard-backend",
   "version": "1.0.0",
-  "description": "Backend API for Code Quality Dashboard",
+  "description": "Backend API for Code Quality Dashboard - Analyze GitHub repositories for code quality, security, and maintainability",
   "main": "src/app.js",
+  "engines": {
+    "node": ">=16.0.0",
+    "npm": ">=8.0.0"
+  },
   "scripts": {
     "start": "node src/app.js",
-    "dev": "nodemon src/app.js",
-    "test": "jest",
-    "lint": "eslint src/",
-    "lint:fix": "eslint src/ --fix"
+    "dev": "nodemon src/app.js --inspect=0.0.0.0:9229",
+    "dev:watch": "nodemon --watch src --ext js,json src/app.js",
+    "test": "jest --coverage",
+    "test:watch": "jest --watch",
+    "test:ci": "jest --ci --coverage --watchAll=false",
+    "lint": "eslint src/ --ext .js",
+    "lint:fix": "eslint src/ --ext .js --fix",
+    "format": "prettier --write \"src/**/*.js\"",
+    "format:check": "prettier --check \"src/**/*.js\"",
+    "validate": "npm run lint && npm run format:check && npm run test",
+    "build": "echo 'No build step needed for Node.js backend'",
+    "clean": "rm -rf logs/* coverage/ node_modules/.cache/",
+    "seed": "node scripts/seed-database.js",
+    "migrate": "node scripts/migrate-database.js",
+    "docs": "jsdoc src/ -d docs/",
+    "analyze": "node scripts/analyze-codebase.js",
+    "security-audit": "npm audit --audit-level moderate",
+    "outdated": "npm outdated",
+    "update-deps": "ncu -u && npm install",
+    "precommit": "npm run lint:fix && npm run test",
+    "prepush": "npm run validate"
   },
+  "keywords": [
+    "code-quality",
+    "github-analysis",
+    "static-analysis",
+    "security-scanning",
+    "technical-debt",
+    "code-metrics",
+    "software-quality",
+    "devops-tools",
+    "open-source"
+  ],
+  "author": {
+    "name": "Your Name",
+    "email": "your.email@example.com",
+    "url": "https://github.com/yourusername"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/yourusername/code-quality-dashboard.git"
+  },
+  "bugs": {
+    "url": "https://github.com/yourusername/code-quality-dashboard/issues"
+  },
+  "homepage": "https://github.com/yourusername/code-quality-dashboard#readme",
   "dependencies": {
     "express": "^4.18.2",
+    "mongoose": "^7.5.0",
+    "redis": "^4.6.8",
+    "axios": "^1.5.0",
     "cors": "^2.8.5",
     "helmet": "^7.0.0",
     "dotenv": "^16.3.1",
-    "axios": "^1.5.0",
-    "mongoose": "^7.5.0",
-    "redis": "^4.6.8",
-    "express-rate-limit": "^6.10.0",
-    "winston": "^3.10.0",
-    "joi": "^17.9.2",
-    "eslint": "^8.47.0",
-    "complexity-report": "^2.0.0-alpha",
-    "audit-ci": "^6.6.1",
+    "bcryptjs": "^2.4.3",
     "jsonwebtoken": "^9.0.2",
-    "bcryptjs": "^2.4.3"
+    "express-rate-limit": "^6.10.0",
+    "express-validator": "^7.0.1",
+    "winston": "^3.10.0",
+    "morgan": "^1.10.0",
+    "joi": "^17.9.2",
+    "lodash": "^4.17.21",
+    "moment": "^2.29.4",
+    "uuid": "^9.0.0",
+    "compression": "^1.7.4",
+    "multer": "^1.4.5-lts.1",
+    "cron": "^2.4.4",
+    "node-cache": "^5.1.2",
+    "semver": "^7.5.4"
   },
   "devDependencies": {
     "nodemon": "^3.0.1",
     "jest": "^29.6.4",
-    "supertest": "^6.3.3"
+    "supertest": "^6.3.3",
+    "eslint": "^8.47.0",
+    "eslint-config-node": "^4.1.0",
+    "eslint-config-prettier": "^9.0.0",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-security": "^1.7.1",
+    "prettier": "^3.0.2",
+    "husky": "^8.0.3",
+    "lint-staged": "^14.0.1",
+    "npm-check-updates": "^16.13.1",
+    "jsdoc": "^4.0.2",
+    "@types/node": "^20.5.9",
+    "cross-env": "^7.0.3",
+    "rimraf": "^5.0.1"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "collectCoverageFrom": [
+      "src/**/*.js",
+      "!src/**/*.test.js",
+      "!src/app.js"
+    ],
+    "coverageThreshold": {
+      "global": {
+        "branches": 70,
+        "functions": 70,
+        "lines": 70,
+        "statements": 70
+      }
+    },
+    "testMatch": [
+      "**/tests/**/*.js",
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
+    "setupFilesAfterEnv": ["<rootDir>/tests/setup.js"]
+  },
+  "eslintConfig": {
+    "extends": [
+      "node",
+      "prettier"
+    ],
+    "plugins": [
+      "security"
+    ],
+    "env": {
+      "node": true,
+      "es2021": true,
+      "jest": true
+    },
+    "rules": {
+      "no-console": "warn",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
+      "security/detect-object-injection": "warn",
+      "security/detect-non-literal-regexp": "warn"
+    }
+  },
+  "prettier": {
+    "semi": true,
+    "trailingComma": "es5",
+    "singleQuote": true,
+    "printWidth": 100,
+    "tabWidth": 2,
+    "useTabs": false,
+    "bracketSpacing": true,
+    "arrowParens": "avoid"
+  },
+  "lint-staged": {
+    "src/**/*.js": [
+      "eslint --fix",
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged",
+      "pre-push": "npm run test"
+    }
+  },
+  "nodemonConfig": {
+    "ignore": [
+      "logs/*",
+      "tests/*",
+      "*.test.js"
+    ],
+    "delay": "1000",
+    "env": {
+      "NODE_ENV": "development"
+    }
   }
 }

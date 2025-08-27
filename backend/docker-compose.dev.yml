@@ -1,0 +1,64 @@
+version: '3.8'
+
+services:
+  # Development MongoDB
+  mongodb-dev:
+    image: mongo:6.0
+    container_name: cqd-mongodb-dev
+    restart: unless-stopped
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_dev_data:/data/db
+    networks:
+      - cqd-dev-network
+
+  # Development Redis
+  redis-dev:
+    image: redis:7-alpine
+    container_name: cqd-redis-dev
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_dev_data:/data
+    networks:
+      - cqd-dev-network
+
+  # Development Backend (with hot reload)
+  backend-dev:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile.dev
+    container_name: cqd-backend-dev
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3001
+      - MONGODB_URI=mongodb://mongodb-dev:27017/code-quality-dashboard-dev
+      - REDIS_URL=redis://redis-dev:6379
+      - JWT_SECRET=dev-jwt-secret
+      - GITHUB_TOKEN=${GITHUB_TOKEN}
+    ports:
+      - "3001:3001"
+      - "9229:9229" # Node.js debugging port
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+      - ./backend/logs:/app/logs
+    depends_on:
+      - mongodb-dev
+      - redis-dev
+    networks:
+      - cqd-dev-network
+    command: npm run dev
+
+volumes:
+  mongodb_dev_data:
+    driver: local
+  redis_dev_data:
+    driver: local
+
+networks:
+  cqd-dev-network:
+    driver: bridge
